@@ -20,203 +20,6 @@ namespace GTC.Champions
 	{
 		Menu menu;
 		
-		void CreateMenu()
-		{
-			menu = MainMenu.AddMenu("GTC Ryze", "gtcryze");
-			menu.Add("key", new KeyBind("Combo Key", false, KeyBind.BindTypes.HoldActive, ' '));
-		}
-		
-		float lastpasmove;
-		
-		void Combo()
-		{
-			if (menu["key"].Cast<KeyBind>().CurrentValue)
-			{
-				Orbwalker.DisableAttacking = true;
-				Orbwalker.DisableMovement = true;
-				if (passive)
-				{
-					if (Game.Time * 1000 > lastpasmove + 250)
-					{
-						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-						lastpasmove = Game.Time * 1000;
-					}
-					if (canq)
-					{
-						if (QTarget != null && Q.IsReady())
-						{
-							Q.Cast(QTarget);
-						}
-					}
-					else if (WERTarget != null)
-					{
-						if (R.IsReady())
-						{
-							R.Cast();
-						}
-						else if (W.IsReady())
-						{
-							W.Cast(WERTarget);
-						}
-						else if (E.IsReady())
-						{
-							E.Cast(WERTarget);
-						}
-					}
-				}
-				else
-				{
-					if (Game.Time * 1000 > lastaa + (Player.Instance.AttackDelay * 1000) - (Game.Ping * 2.15f) && !W.IsReady())
-					{
-						if (Target != null)
-						{
-							Player.IssueOrder(GameObjectOrder.AttackUnit, Target);
-						}
-						else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
-						{
-							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-							if (Q2.IsReady() && QTarget != null)
-							{
-								Q2.Cast(QTarget);
-							}
-						}
-					}
-					else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
-					{
-						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-						if (stacks < 3)
-						{
-							if (WERTarget != null)
-							{
-								if (W.IsReady())
-								{
-									W.Cast(WERTarget);
-								}
-								else if (E.IsReady())
-								{
-									E.Cast(WERTarget);
-								}
-								else if (Q2.IsReady())
-								{
-									Q2.Cast(WERTarget);
-								}
-							}
-							else if (Q2.IsReady() && QTarget != null)
-							{
-								Q2.Cast(QTarget);
-							}
-						}
-						if (stacks == 3)
-						{
-							if (WERTarget != null)
-							{
-								if (R.IsReady())
-								{
-									if (W.IsReady())
-									{
-										W.Cast(WERTarget);
-									}
-									else if (E.IsReady())
-									{
-										E.Cast(WERTarget);
-									}
-									else if (Q.IsReady())
-									{
-										Q.Cast(WERTarget);
-									}
-								}
-								else if (W.IsReady())
-								{
-									if (R.IsReady())
-									{
-										R.Cast();
-									}
-									else if (E.IsReady())
-									{
-										E.Cast(WERTarget);
-									}
-									else if (Q.IsReady())
-									{
-										Q.Cast(WERTarget);
-									}
-									else
-									{
-										W.Cast(WERTarget);
-									}
-								}
-								else
-								{
-									if (E.IsReady())
-									{
-										E.Cast(WERTarget);
-									}
-									else if (Q.IsReady())
-									{
-										Q.Cast(WERTarget);
-									}
-								}
-							}
-							else if (Q2.IsReady() && QTarget != null)
-							{
-								Q2.Cast(QTarget);
-							}
-						}
-						if (stacks == 4)
-						{
-							if (WERTarget != null)
-							{
-								if (R.IsReady())
-								{
-									R.Cast();
-								}
-								else if (W.IsReady())
-								{
-									W.Cast(WERTarget);
-								}
-								else if (E.IsReady())
-								{
-									E.Cast(WERTarget);
-								}
-								else if (Q.IsReady())
-								{
-									Q.Cast(WERTarget);
-								}
-							}
-							else if (Q2.IsReady() && QTarget != null)
-							{
-								Q2.Cast(QTarget);
-							}
-						}
-					}
-				}
-			}
-			else
-			{
-				Orbwalker.DisableAttacking = false;
-				Orbwalker.DisableMovement = false;
-			}
-		}
-
-		void Game_OnTick(EventArgs args)
-		{
-			Combo();
-		}
-		
-		float lastaa;
-		
-		public Ryze()
-		{
-			CreateMenu();
-			Game.OnTick += Game_OnTick;
-			GameObject.OnCreate += GameObject_OnCreate;
-			Obj_AI_Base.OnBasicAttack += Obj_AI_Base_OnBasicAttack;
-			GameObject.OnDelete += GameObject_OnDelete;
-			Spellbook.OnCastSpell += Spellbook_OnCastSpell;
-			Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
-		}
-		
-		bool canq;
-		
 		readonly Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 55) { AllowedCollisionCount = int.MaxValue, MinimumHitChance = HitChance.Low };
 		
 		readonly Spell.Skillshot Q2 = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 70) { AllowedCollisionCount = 0, MinimumHitChance = HitChance.High };
@@ -226,6 +29,37 @@ namespace GTC.Champions
 		readonly Spell.Targeted E = new Spell.Targeted(SpellSlot.E, 600);
 		
 		readonly Spell.Active R = new Spell.Active(SpellSlot.R, 600);
+		
+		float lastaa, num, lastpasmove;
+		
+		bool canq, passive;
+		
+		int stacks;
+		
+		public Ryze()
+		{
+			menu = MainMenu.AddMenu("GTC Ryze", "gtcryze");
+			menu.Add("key", new KeyBind("Combo Key", false, KeyBind.BindTypes.HoldActive, ' '));
+			Game.OnTick += Game_OnTick;
+			Obj_AI_Base.OnBasicAttack += Obj_AI_Base_OnBasicAttack;
+			Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
+			Spellbook.OnCastSpell += Spellbook_OnCastSpell;
+			GameObject.OnCreate += GameObject_OnCreate;
+			GameObject.OnDelete += GameObject_OnDelete;
+		}
+		
+		void Game_OnTick(EventArgs args)
+		{
+			Combo();
+		}
+		
+		void Obj_AI_Base_OnBasicAttack(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
+		{
+			if (sender.IsMe)
+			{
+				lastaa = Game.Time * 1000;
+			}
+		}
 		
 		void Obj_AI_Base_OnSpellCast(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
 		{
@@ -256,18 +90,6 @@ namespace GTC.Champions
 				}
 			}
 		}
-		
-		void Obj_AI_Base_OnBasicAttack(Obj_AI_Base sender, GameObjectProcessSpellCastEventArgs args)
-		{
-			if (sender.IsMe)
-			{
-				lastaa = Game.Time * 1000;
-			}
-		}
-		
-		bool passive;
-		int stacks;
-		float num;
 		
 		void GameObject_OnCreate(GameObject sender, EventArgs args)
 		{
@@ -310,6 +132,213 @@ namespace GTC.Champions
 			if (sender.Name == "Ryze_Base_P_Buf.troy")
 			{
 				passive = false;
+			}
+		}
+		
+		void Combo()
+		{
+			//try
+			//{
+				if (menu["key"].Cast<KeyBind>().CurrentValue)
+				{
+					Orbwalker.DisableAttacking = true;
+					Orbwalker.DisableMovement = true;
+					if (passive)
+					{
+						if (Game.Time * 1000 > lastpasmove + 250)
+						{
+							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+							lastpasmove = Game.Time * 1000;
+						}
+						if (canq)
+						{
+							if (QTarget != null && Q.IsReady())
+							{
+								Q.Cast(QTarget);
+							}
+						}
+						else if (WERTarget != null)
+						{
+							if (R.IsReady())
+							{
+								R.Cast();
+							}
+							else if (W.IsReady())
+							{
+								W.Cast(WERTarget);
+							}
+							else if (E.IsReady())
+							{
+								E.Cast(WERTarget);
+							}
+						}
+					}
+					else
+					{
+						if (Game.Time * 1000 > lastaa + (Player.Instance.AttackDelay * 1000) - (Game.Ping * 2.15f))
+						{
+							if (Target != null && ((stacks < 3 && !W.IsReady() && !E.IsReady()) || (stacks > 2 && !Q.IsReady() && !W.IsReady() && !E.IsReady())))
+							{
+								Player.IssueOrder(GameObjectOrder.AttackUnit, Target);
+							}
+							else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
+							{
+								Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+								if (Q.IsReady())
+								{
+									if (QTarget != null)
+									{
+										Q2.Cast(QTarget);
+									}
+								}
+							}
+						}
+						else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
+						{
+							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+						}
+						CastSpells();
+					}
+				}
+				else
+				{
+					Orbwalker.DisableAttacking = false;
+					Orbwalker.DisableMovement = false;
+				}
+			//}
+			//catch(Exception e)
+			//{
+				//Chat.Print(e);
+			//}
+		}
+		
+		void CastSpells()
+		{
+			bool qready = Q.IsReady();
+			bool wready =  W.IsReady();
+			bool eready = E.IsReady();
+			bool rready = R.IsReady();
+			if (stacks < 3)
+			{
+				if (WERTarget != null)
+				{
+					if (wready)
+					{
+						W.Cast(WERTarget);
+						wready = false;
+					}
+					else if (eready)
+					{
+						E.Cast(WERTarget);
+						eready = false;
+					}
+					else if (qready)
+					{
+						Q2.Cast(WERTarget);
+						qready = false;
+					}
+				}
+				else if (qready && QTarget != null)
+				{
+					Q2.Cast(QTarget);
+					qready = false;
+				}
+			}
+			if (stacks == 3)
+			{
+				if (WERTarget != null)
+				{
+					if (R.IsReady())
+					{
+						if (wready)
+						{
+							W.Cast(WERTarget);
+							wready = false;
+						}
+						else if (eready)
+						{
+							E.Cast(WERTarget);
+							eready = false;
+						}
+						else if (qready)
+						{
+							Q.Cast(WERTarget);
+							qready = false;
+						}
+					}
+					else if (wready)
+					{
+						if (rready)
+						{
+							R.Cast();
+							rready = false;
+						}
+						else if (eready)
+						{
+							E.Cast(WERTarget);
+							eready = false;
+						}
+						else if (qready)
+						{
+							Q.Cast(WERTarget);
+							qready = false;
+						}
+						else
+						{
+							W.Cast(WERTarget);
+							wready = false;
+						}
+					}
+					else
+					{
+						if (eready)
+						{
+							E.Cast(WERTarget);
+							eready = false;
+						}
+						else if (qready)
+						{
+							Q.Cast(WERTarget);
+							qready = false;
+						}
+					}
+				}
+				else if (qready && QTarget != null)
+				{
+					Q2.Cast(QTarget);
+					qready = false;
+				}
+			}
+			if (stacks == 4)
+			{
+				if (WERTarget != null)
+				{
+					if (rready)
+					{
+						R.Cast();
+						rready = false;
+					}
+					else if (wready)
+					{
+						W.Cast(WERTarget);
+						wready = false;
+					}
+					else if (eready)
+					{
+						E.Cast(WERTarget);
+						eready = false;
+					}
+					else if (qready)
+					{
+						Q.Cast(WERTarget);
+						qready = false;
+					}
+				}
+				else if (qready && QTarget != null)
+				{
+					Q2.Cast(QTarget);
+					qready = false;
+				}
 			}
 		}
 		
