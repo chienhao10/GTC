@@ -39,6 +39,7 @@ namespace GTC.Champions
 					if (Game.Time * 1000 > lastpasmove + 250)
 					{
 						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+						lastpasmove = Game.Time * 1000;
 					}
 					if (canq)
 					{
