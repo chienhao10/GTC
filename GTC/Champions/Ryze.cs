@@ -138,13 +138,6 @@ namespace GTC.Champions
 		
 		void Combo()
 		{
-			if (Q.IsReady() && Player.Instance.Mana > Player.Instance.MaxMana * (menu["qmana"].Cast<Slider>().CurrentValue / 100))
-			{
-				if (QTarget != null)
-				{
-					Q2.Cast(QTarget);
-				}
-			}
 			//try
 			//{
 			if (menu["key"].Cast<KeyBind>().CurrentValue)
@@ -158,7 +151,7 @@ namespace GTC.Champions
 						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 						lastpasmove = Game.Time * 1000;
 					}
-					if (canq)
+					if (canq && !W.IsReady())
 					{
 						if (QTarget != null && Q.IsReady())
 						{
@@ -192,7 +185,7 @@ namespace GTC.Champions
 						else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
 						{
 							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-							if (Q.IsReady())
+							if (Q.IsReady() && !W.IsReady())
 							{
 								if (QTarget != null)
 								{
@@ -212,6 +205,13 @@ namespace GTC.Champions
 			{
 				Orbwalker.DisableAttacking = false;
 				Orbwalker.DisableMovement = false;
+				if (Q.IsReady() && Player.Instance.Mana > Player.Instance.MaxMana * (menu["qmana"].Cast<Slider>().CurrentValue / 100))
+				{
+					if (QTarget != null)
+					{
+						Q2.Cast(QTarget);
+					}
+				}
 			}
 			//}
 			//catch(Exception e)
@@ -246,7 +246,7 @@ namespace GTC.Champions
 						qready = false;
 					}
 				}
-				else if (qready && QTarget != null)
+				else if (qready && !wready && QTarget != null)
 				{
 					Q2.Cast(QTarget);
 					qready = false;
@@ -311,7 +311,7 @@ namespace GTC.Champions
 						}
 					}
 				}
-				else if (qready && QTarget != null)
+				else if (qready && !wready && QTarget != null)
 				{
 					Q2.Cast(QTarget);
 					qready = false;
@@ -342,7 +342,7 @@ namespace GTC.Champions
 						qready = false;
 					}
 				}
-				else if (qready && QTarget != null)
+				else if (qready && !wready && QTarget != null)
 				{
 					Q2.Cast(QTarget);
 					qready = false;
