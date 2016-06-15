@@ -66,7 +66,7 @@ namespace GTC.Champions
 				}
 				else
 				{
-					if (Game.Time * 1000 > lastaa + (Player.Instance.AttackDelay * 1000) - (Game.Ping * 2.15f))
+					if (Game.Time * 1000 > lastaa + (Player.Instance.AttackDelay * 1000) - (Game.Ping * 2.15f) && !W.IsReady())
 					{
 						if (Target != null)
 						{
