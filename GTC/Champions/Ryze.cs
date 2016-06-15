@@ -80,94 +80,35 @@ namespace GTC.Champions
 					else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
 					{
 						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-						if (!passive)
+						if (stacks < 3)
 						{
-							if (stacks < 3)
+							if (WERTarget != null)
 							{
-								if (WERTarget != null)
+								if (W.IsReady())
+								{
+									W.Cast(WERTarget);
+								}
+								else if (E.IsReady())
+								{
+									E.Cast(WERTarget);
+								}
+								else if (Q2.IsReady())
+								{
+									Q2.Cast(WERTarget);
+								}
+							}
+							else if (Q2.IsReady() && QTarget != null)
+							{
+								Q2.Cast(QTarget);
+							}
+						}
+						if (stacks == 3)
+						{
+							if (WERTarget != null)
+							{
+								if (R.IsReady())
 								{
 									if (W.IsReady())
-									{
-										W.Cast(WERTarget);
-									}
-									else if (E.IsReady())
-									{
-										E.Cast(WERTarget);
-									}
-									else if (Q2.IsReady())
-									{
-										Q2.Cast(WERTarget);
-									}
-								}
-								else if (Q2.IsReady() && QTarget != null)
-								{
-									Q2.Cast(QTarget);
-								}
-							}
-							if (stacks == 3)
-							{
-								if (WERTarget != null)
-								{
-									if (R.IsReady())
-									{
-										if (W.IsReady())
-										{
-											W.Cast(WERTarget);
-										}
-										else if (E.IsReady())
-										{
-											E.Cast(WERTarget);
-										}
-										else if (Q.IsReady())
-										{
-											Q.Cast(WERTarget);
-										}
-									}
-									else if (W.IsReady())
-									{
-										if (R.IsReady())
-										{
-											R.Cast();
-										}
-										else if (E.IsReady())
-										{
-											E.Cast(WERTarget);
-										}
-										else if (Q.IsReady())
-										{
-											Q.Cast(WERTarget);
-										}
-										else
-										{
-											W.Cast(WERTarget);
-										}
-									}
-									else
-									{
-										if (E.IsReady())
-										{
-											E.Cast(WERTarget);
-										}
-										else if (Q.IsReady())
-										{
-											Q.Cast(WERTarget);
-										}
-									}
-								}
-								else if (Q2.IsReady() && QTarget != null)
-								{
-									Q2.Cast(QTarget);
-								}
-							}
-							if (stacks == 4)
-							{
-								if (WERTarget != null)
-								{
-									if (R.IsReady())
-									{
-										R.Cast();
-									}
-									else if (W.IsReady())
 									{
 										W.Cast(WERTarget);
 									}
@@ -180,10 +121,66 @@ namespace GTC.Champions
 										Q.Cast(WERTarget);
 									}
 								}
-								else if (Q2.IsReady() && QTarget != null)
+								else if (W.IsReady())
 								{
-									Q2.Cast(QTarget);
+									if (R.IsReady())
+									{
+										R.Cast();
+									}
+									else if (E.IsReady())
+									{
+										E.Cast(WERTarget);
+									}
+									else if (Q.IsReady())
+									{
+										Q.Cast(WERTarget);
+									}
+									else
+									{
+										W.Cast(WERTarget);
+									}
 								}
+								else
+								{
+									if (E.IsReady())
+									{
+										E.Cast(WERTarget);
+									}
+									else if (Q.IsReady())
+									{
+										Q.Cast(WERTarget);
+									}
+								}
+							}
+							else if (Q2.IsReady() && QTarget != null)
+							{
+								Q2.Cast(QTarget);
+							}
+						}
+						if (stacks == 4)
+						{
+							if (WERTarget != null)
+							{
+								if (R.IsReady())
+								{
+									R.Cast();
+								}
+								else if (W.IsReady())
+								{
+									W.Cast(WERTarget);
+								}
+								else if (E.IsReady())
+								{
+									E.Cast(WERTarget);
+								}
+								else if (Q.IsReady())
+								{
+									Q.Cast(WERTarget);
+								}
+							}
+							else if (Q2.IsReady() && QTarget != null)
+							{
+								Q2.Cast(QTarget);
 							}
 						}
 					}
