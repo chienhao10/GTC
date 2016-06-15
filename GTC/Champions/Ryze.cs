@@ -24,7 +24,6 @@ namespace GTC.Champions
 		{
 			menu = MainMenu.AddMenu("GTC Ryze", "gtcryze");
 			menu.Add("key", new KeyBind("Combo Key", false, KeyBind.BindTypes.HoldActive, ' '));
-			menu.Add("castmode", new ComboBox("Cast Spell Mode", 0, "without GetPrediction", "GetPrediction + hitchance percent", "GetPrediction + hitchance enum"));
 		}
 		
 		float lastpasmove;
