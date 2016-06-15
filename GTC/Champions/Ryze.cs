@@ -75,6 +75,10 @@ namespace GTC.Champions
 						else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
 						{
 							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+							if (Q2.IsReady() && QTarget != null)
+							{
+								Q2.Cast(QTarget);
+							}
 						}
 					}
 					else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
