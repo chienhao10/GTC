@@ -40,6 +40,7 @@ namespace GTC.Champions
 		{
 			menu = MainMenu.AddMenu("GTC Ryze", "gtcryze");
 			menu.Add("key", new KeyBind("Combo Key", false, KeyBind.BindTypes.HoldActive, ' '));
+			menu.Add("qmana", new Slider("Auto Q min. % Mana", 50, 5));
 			Game.OnTick += Game_OnTick;
 			Obj_AI_Base.OnBasicAttack += Obj_AI_Base_OnBasicAttack;
 			Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
@@ -137,85 +138,92 @@ namespace GTC.Champions
 		
 		void Combo()
 		{
+			if (Q.IsReady() && Player.Instance.Mana > Player.Instance.MaxMana * (menu["qmana"].Cast<Slider>().CurrentValue / 100))
+			{
+				if (QTarget != null)
+				{
+					Q2.Cast(QTarget);
+				}
+			}
 			//try
 			//{
-				if (menu["key"].Cast<KeyBind>().CurrentValue)
+			if (menu["key"].Cast<KeyBind>().CurrentValue)
+			{
+				Orbwalker.DisableAttacking = true;
+				Orbwalker.DisableMovement = true;
+				if (passive)
 				{
-					Orbwalker.DisableAttacking = true;
-					Orbwalker.DisableMovement = true;
-					if (passive)
+					if (Game.Time * 1000 > lastpasmove + 250)
 					{
-						if (Game.Time * 1000 > lastpasmove + 250)
+						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+						lastpasmove = Game.Time * 1000;
+					}
+					if (canq)
+					{
+						if (QTarget != null && Q.IsReady())
 						{
-							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-							lastpasmove = Game.Time * 1000;
-						}
-						if (canq)
-						{
-							if (QTarget != null && Q.IsReady())
-							{
-								Q.Cast(QTarget);
-							}
-						}
-						else if (WERTarget != null)
-						{
-							if (R.IsReady())
-							{
-								R.Cast();
-							}
-							else if (W.IsReady())
-							{
-								W.Cast(WERTarget);
-							}
-							else if (E.IsReady())
-							{
-								E.Cast(WERTarget);
-							}
+							Q.Cast(QTarget);
 						}
 					}
-					else
+					else if (WERTarget != null)
 					{
-						if (Game.Time * 1000 > lastaa + (Player.Instance.AttackDelay * 1000) - (Game.Ping * 2.15f))
+						if (R.IsReady())
 						{
-							if (Target != null && ((stacks < 3 && !W.IsReady() && !E.IsReady()) || (stacks > 2 && !Q.IsReady() && !W.IsReady() && !E.IsReady())))
-							{
-								Player.IssueOrder(GameObjectOrder.AttackUnit, Target);
-							}
-							else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
-							{
-								Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
-								if (Q.IsReady())
-								{
-									if (QTarget != null)
-									{
-										Q2.Cast(QTarget);
-									}
-								}
-							}
+							R.Cast();
 						}
-						else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
+						else if (W.IsReady())
 						{
-							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+							W.Cast(WERTarget);
 						}
-						CastSpells();
+						else if (E.IsReady())
+						{
+							E.Cast(WERTarget);
+						}
 					}
 				}
 				else
 				{
-					Orbwalker.DisableAttacking = false;
-					Orbwalker.DisableMovement = false;
+					if (Game.Time * 1000 > lastaa + (Player.Instance.AttackDelay * 1000) - (Game.Ping * 2.15f))
+					{
+						if (Target != null && ((stacks < 3 && !W.IsReady() && !E.IsReady()) || (stacks > 2 && !Q.IsReady() && !W.IsReady() && !E.IsReady())))
+						{
+							Player.IssueOrder(GameObjectOrder.AttackUnit, Target);
+						}
+						else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
+						{
+							Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+							if (Q.IsReady())
+							{
+								if (QTarget != null)
+								{
+									Q2.Cast(QTarget);
+								}
+							}
+						}
+					}
+					else if (Game.Time * 1000 > lastaa + (Player.Instance.AttackCastDelay * 1000) - (Game.Ping / 2.15f) + (Player.Instance.AttackSpeedMod * 10))
+					{
+						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
+					}
+					CastSpells();
 				}
+			}
+			else
+			{
+				Orbwalker.DisableAttacking = false;
+				Orbwalker.DisableMovement = false;
+			}
 			//}
 			//catch(Exception e)
 			//{
-				//Chat.Print(e);
+			//Chat.Print(e);
 			//}
 		}
 		
 		void CastSpells()
 		{
 			bool qready = Q.IsReady();
-			bool wready =  W.IsReady();
+			bool wready = W.IsReady();
 			bool eready = E.IsReady();
 			bool rready = R.IsReady();
 			if (stacks < 3)
