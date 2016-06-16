@@ -139,14 +139,13 @@ namespace GTC.Champions
 		void Combo()
 		{
 			//try
-			//{
+			AttackableUnit t = Target;
+			AIHeroClient qt = QTarget;
+			AIHeroClient wt = WERTarget;
 			if (menu["key"].Cast<KeyBind>().CurrentValue)
 			{
 				Orbwalker.DisableAttacking = true;
 				Orbwalker.DisableMovement = true;
-				AttackableUnit t = Target;
-				AIHeroClient qt = QTarget;
-				AIHeroClient wt = WERTarget;
 				if (passive)
 				{
 					if (Game.Time * 1000 > lastpasmove + 250)
@@ -209,12 +208,9 @@ namespace GTC.Champions
 			{
 				Orbwalker.DisableAttacking = false;
 				Orbwalker.DisableMovement = false;
-				if (Q.IsReady() && Player.Instance.Mana > Player.Instance.MaxMana * (menu["qmana"].Cast<Slider>().CurrentValue / 100))
+				if (Q.IsReady() && qt != null && Player.Instance.Mana > Player.Instance.MaxMana * (menu["qmana"].Cast<Slider>().CurrentValue / 100f))
 				{
-					if (QTarget != null)
-					{
-						Q2.Cast(QTarget);
-					}
+					Q2.Cast(qt);
 				}
 			}
 			//}
@@ -226,41 +222,15 @@ namespace GTC.Champions
 		
 		void CastSpells(AIHeroClient qt, AIHeroClient wt)
 		{
-			bool qready = Q.IsReady();
-			bool wready = W.IsReady();
-			bool eready = E.IsReady();
-			bool rready = R.IsReady();
-			if (stacks < 3)
+			if (menu["key"].Cast<KeyBind>().CurrentValue && !passive)
 			{
-				if (wt != null)
+				bool qready = Q.IsReady();
+				bool wready = W.IsReady();
+				bool eready = E.IsReady();
+				bool rready = R.IsReady();
+				if (stacks < 3)
 				{
-					if (wready)
-					{
-						W.Cast(wt);
-						wready = false;
-					}
-					else if (eready)
-					{
-						E.Cast(wt);
-						eready = false;
-					}
-					else if (qready)
-					{
-						Q2.Cast(wt);
-						qready = false;
-					}
-				}
-				else if (qready && !wready && qt != null)
-				{
-					Q2.Cast(qt);
-					qready = false;
-				}
-			}
-			if (stacks == 3)
-			{
-				if (wt != null)
-				{
-					if (R.IsReady())
+					if (wt != null)
 					{
 						if (wready)
 						{
@@ -274,16 +244,94 @@ namespace GTC.Champions
 						}
 						else if (qready)
 						{
-							Q.Cast(wt);
+							Q2.Cast(wt);
 							qready = false;
 						}
 					}
-					else if (wready)
+					else if (qready && !wready && qt != null)
+					{
+						Q2.Cast(qt);
+						qready = false;
+					}
+				}
+				if (stacks == 3)
+				{
+					if (wt != null)
+					{
+						if (R.IsReady())
+						{
+							if (wready)
+							{
+								W.Cast(wt);
+								wready = false;
+							}
+							else if (eready)
+							{
+								E.Cast(wt);
+								eready = false;
+							}
+							else if (qready)
+							{
+								Q.Cast(wt);
+								qready = false;
+							}
+						}
+						else if (wready)
+						{
+							if (rready)
+							{
+								R.Cast();
+								rready = false;
+							}
+							else if (eready)
+							{
+								E.Cast(wt);
+								eready = false;
+							}
+							else if (qready)
+							{
+								Q.Cast(wt);
+								qready = false;
+							}
+							else
+							{
+								W.Cast(wt);
+								wready = false;
+							}
+						}
+						else
+						{
+							if (eready)
+							{
+								E.Cast(wt);
+								eready = false;
+							}
+							else if (qready)
+							{
+								Q.Cast(wt);
+								qready = false;
+							}
+						}
+					}
+					else if (qready && !wready && qt != null)
+					{
+						Q2.Cast(qt);
+						qready = false;
+					}
+				}
+				if (stacks == 4)
+				{
+					if (wt != null)
 					{
 						if (rready)
 						{
 							R.Cast();
 							rready = false;
+						}
+						else if (wready)
+						{
+							W.Cast(wt);
+							wready = false;
 						}
 						else if (eready)
 						{
@@ -295,61 +343,12 @@ namespace GTC.Champions
 							Q.Cast(wt);
 							qready = false;
 						}
-						else
-						{
-							W.Cast(wt);
-							wready = false;
-						}
 					}
-					else
+					else if (qready && !wready && qt != null)
 					{
-						if (eready)
-						{
-							E.Cast(wt);
-							eready = false;
-						}
-						else if (qready)
-						{
-							Q.Cast(wt);
-							qready = false;
-						}
-					}
-				}
-				else if (qready && !wready && qt != null)
-				{
-					Q2.Cast(qt);
-					qready = false;
-				}
-			}
-			if (stacks == 4)
-			{
-				if (wt != null)
-				{
-					if (rready)
-					{
-						R.Cast();
-						rready = false;
-					}
-					else if (wready)
-					{
-						W.Cast(wt);
-						wready = false;
-					}
-					else if (eready)
-					{
-						E.Cast(wt);
-						eready = false;
-					}
-					else if (qready)
-					{
-						Q.Cast(wt);
+						Q2.Cast(qt);
 						qready = false;
 					}
-				}
-				else if (qready && !wready && qt != null)
-				{
-					Q2.Cast(qt);
-					qready = false;
 				}
 			}
 		}
