@@ -34,6 +34,10 @@ namespace GTC //God Tier Champions
 			{
 				new Ryze();
 			}
+			if (Player.Instance.ChampionName == "Katarina")
+			{
+				new Katarina();
+			}
 		}
 	}
 }
