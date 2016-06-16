@@ -41,7 +41,7 @@ namespace GTC.Champions
 			menu = MainMenu.AddMenu("GTC Ryze", "gtcryze");
 			menu.Add("key", new KeyBind("Combo Key", false, KeyBind.BindTypes.HoldActive, ' '));
 			menu.Add("qmana", new Slider("Auto Q min. % Mana", 50, 5));
-			menu.Add("cann", new Slider("Next Spell[Q,W,E] Delay", 500, 0, 1000));
+			menu.Add("cann", new Slider("Next Spell[Q,W,E] Delay", 175, 0, 1000));
 			Game.OnTick += Game_OnTick;
 			Obj_AI_Base.OnBasicAttack += Obj_AI_Base_OnBasicAttack;
 			Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
