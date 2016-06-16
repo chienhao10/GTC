@@ -30,7 +30,7 @@ namespace GTC.Champions
 		
 		readonly Spell.Active R = new Spell.Active(SpellSlot.R, 600);
 		
-		float lastaa, num, lastpasmove;
+		float lastaa, num, lastpasmove, cannext;
 		
 		bool canq, passive;
 		
@@ -41,6 +41,7 @@ namespace GTC.Champions
 			menu = MainMenu.AddMenu("GTC Ryze", "gtcryze");
 			menu.Add("key", new KeyBind("Combo Key", false, KeyBind.BindTypes.HoldActive, ' '));
 			menu.Add("qmana", new Slider("Auto Q min. % Mana", 50, 5));
+			menu.Add("cann", new Slider("Next Spell[Q,W,E] Delay", 500, 0, 1000));
 			Game.OnTick += Game_OnTick;
 			Obj_AI_Base.OnBasicAttack += Obj_AI_Base_OnBasicAttack;
 			Obj_AI_Base.OnSpellCast += Obj_AI_Base_OnSpellCast;
@@ -85,6 +86,18 @@ namespace GTC.Champions
 		{
 			if (sender.Owner.IsMe)
 			{
+				if (args.Slot == SpellSlot.Q)
+				{
+					cannext = Game.Time * 1000;
+				}
+				if (args.Slot == SpellSlot.W)
+				{
+					cannext = Game.Time * 1000;
+				}
+				if (args.Slot == SpellSlot.E)
+				{
+					cannext = Game.Time * 1000;
+				}
 				if (args.Slot == SpellSlot.R)
 				{
 					canq = true;
@@ -142,11 +155,12 @@ namespace GTC.Champions
 			AttackableUnit t = Target;
 			AIHeroClient qt = QTarget;
 			AIHeroClient wt = WERTarget;
+			int next = menu["cann"].Cast<Slider>().CurrentValue;
 			if (menu["key"].Cast<KeyBind>().CurrentValue)
 			{
 				Orbwalker.DisableAttacking = true;
 				Orbwalker.DisableMovement = true;
-				if (passive)
+				if (passive && Player.Instance.Mana > 200)
 				{
 					if (Game.Time * 1000 > lastpasmove + 250)
 					{
@@ -158,7 +172,10 @@ namespace GTC.Champions
 					{
 						if (qt != null)
 						{
-							Q.Cast(qt);
+							if (Game.Time * 1000 > cannext + next)
+							{
+								Q.Cast(qt);
+							}
 						}
 					}
 					else if (wt != null)
@@ -169,11 +186,17 @@ namespace GTC.Champions
 						}
 						else if (W.IsReady())
 						{
-							W.Cast(wt);
+							if (Game.Time * 1000 > cannext + next)
+							{
+								W.Cast(wt);
+							}
 						}
 						else if (E.IsReady())
 						{
-							E.Cast(wt);
+							if (Game.Time * 1000 > cannext + next)
+							{
+								E.Cast(wt);
+							}
 						}
 					}
 				}
@@ -192,7 +215,10 @@ namespace GTC.Champions
 							{
 								if (qt != null)
 								{
-									Q2.Cast(qt);
+									if (Game.Time * 1000 > cannext + next)
+									{
+										Q2.Cast(qt);
+									}
 								}
 							}
 						}
@@ -201,7 +227,7 @@ namespace GTC.Champions
 					{
 						Player.IssueOrder(GameObjectOrder.MoveTo, Game.CursorPos);
 					}
-					CastSpells(qt, wt);
+					CastSpells(qt, wt, next);
 				}
 			}
 			else
@@ -220,7 +246,7 @@ namespace GTC.Champions
 			//}
 		}
 		
-		void CastSpells(AIHeroClient qt, AIHeroClient wt)
+		void CastSpells(AIHeroClient qt, AIHeroClient wt, float next)
 		{
 			if (menu["key"].Cast<KeyBind>().CurrentValue && !passive)
 			{
@@ -232,17 +258,17 @@ namespace GTC.Champions
 				{
 					if (wt != null)
 					{
-						if (wready)
+						if (wready && Game.Time * 1000 > cannext + next)
 						{
 							W.Cast(wt);
 							wready = false;
 						}
-						else if (eready)
+						else if (eready && Game.Time * 1000 > cannext + next)
 						{
 							E.Cast(wt);
 							eready = false;
 						}
-						else if (qready)
+						else if (qready && Game.Time * 1000 > cannext + next)
 						{
 							Q2.Cast(wt);
 							qready = false;
@@ -260,17 +286,17 @@ namespace GTC.Champions
 					{
 						if (R.IsReady())
 						{
-							if (wready)
+							if (wready && Game.Time * 1000 > cannext + next)
 							{
 								W.Cast(wt);
 								wready = false;
 							}
-							else if (eready)
+							else if (eready && Game.Time * 1000 > cannext + next)
 							{
 								E.Cast(wt);
 								eready = false;
 							}
-							else if (qready)
+							else if (qready && Game.Time * 1000 > cannext + next)
 							{
 								Q.Cast(wt);
 								qready = false;
@@ -283,17 +309,17 @@ namespace GTC.Champions
 								R.Cast();
 								rready = false;
 							}
-							else if (eready)
+							else if (eready && Game.Time * 1000 > cannext + next)
 							{
 								E.Cast(wt);
 								eready = false;
 							}
-							else if (qready)
+							else if (qready && Game.Time * 1000 > cannext + next)
 							{
 								Q.Cast(wt);
 								qready = false;
 							}
-							else
+							else if (Game.Time * 1000 > cannext + next)
 							{
 								W.Cast(wt);
 								wready = false;
@@ -301,12 +327,12 @@ namespace GTC.Champions
 						}
 						else
 						{
-							if (eready)
+							if (eready && Game.Time * 1000 > cannext + next)
 							{
 								E.Cast(wt);
 								eready = false;
 							}
-							else if (qready)
+							else if (qready && Game.Time * 1000 > cannext + next)
 							{
 								Q.Cast(wt);
 								qready = false;
@@ -328,17 +354,17 @@ namespace GTC.Champions
 							R.Cast();
 							rready = false;
 						}
-						else if (wready)
+						else if (wready && Game.Time * 1000 > cannext + next)
 						{
 							W.Cast(wt);
 							wready = false;
 						}
-						else if (eready)
+						else if (eready && Game.Time * 1000 > cannext + next)
 						{
 							E.Cast(wt);
 							eready = false;
 						}
-						else if (qready)
+						else if (qready && Game.Time * 1000 > cannext + next)
 						{
 							Q.Cast(wt);
 							qready = false;
