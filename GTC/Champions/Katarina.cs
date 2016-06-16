@@ -12,7 +12,6 @@ namespace GTC.Champions
 		public Katarina()
 		{
 			menu = MainMenu.AddMenu("GTC Katarina", "gtckatarina");
-			menu.Add("key", new KeyBind("Combo Key", false, KeyBind.BindTypes.HoldActive, ' '));
 			menu.Add("autoq", new CheckBox("Auto Q"));
 			menu.Add("autow", new CheckBox("Auto W"));
 			Game.OnTick += Game_OnTick;
@@ -90,7 +89,7 @@ namespace GTC.Champions
 		
 		void Game_OnTick(EventArgs args)
 		{
-			if (menu["key"].Cast<KeyBind>().CurrentValue)
+			if (Orbwalker.ActiveModesFlags.HasFlag(Orbwalker.ActiveModes.Combo))
 			{
 				CastQ();
 				CastE();
