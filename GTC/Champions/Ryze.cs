@@ -12,9 +12,9 @@ namespace GTC.Champions
 	{
 		Menu menu;
 		
-		readonly Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 55) { AllowedCollisionCount = int.MaxValue, MinimumHitChance = HitChance.Medium };
+		readonly Spell.Skillshot Q = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 55);
 		
-		readonly Spell.Skillshot Q2 = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 70) { AllowedCollisionCount = 0, MinimumHitChance = HitChance.High };
+		readonly Spell.Skillshot Q2 = new Spell.Skillshot(SpellSlot.Q, 900, SkillShotType.Linear, 250, 1400, 70);
 		
 		readonly Spell.Targeted W = new Spell.Targeted(SpellSlot.W, 600);
 		
@@ -86,9 +86,9 @@ namespace GTC.Champions
 				return;
 			}
 			var pred2 = Q2.GetPrediction(t);
-			if (!pred2.CastPosition.IsZero)
+			if (!pred2.CastPosition.IsZero && !pred2.Collision && pred2.HitChance >= HitChance.High)
 			{
-				Q.Cast(pred2.CastPosition);
+				Q2.Cast(pred2.CastPosition);
 			}
 		}
 		
@@ -106,7 +106,7 @@ namespace GTC.Champions
 			if ((!passive && stacks > 2) || passive)
 			{
 				var pred = Q.GetPrediction(t);
-				if (!pred.CastPosition.IsZero)
+				if (!pred.CastPosition.IsZero && pred.HitChance >= HitChance.Medium)
 				{
 					if (Orbwalker.CanMove)
 					{
@@ -114,15 +114,16 @@ namespace GTC.Champions
 					}
 					Q.Cast(pred.CastPosition);
 				}
+				return;
 			}
 			var pred2 = Q2.GetPrediction(t);
-			if (!pred2.CastPosition.IsZero)
+			if (!pred2.CastPosition.IsZero && !pred2.Collision && pred2.HitChance >= HitChance.High)
 			{
 				if (Orbwalker.CanMove)
 				{
 					Orbwalker.DisableAttacking = true;
 				}
-				Q.Cast(pred2.CastPosition);
+				Q2.Cast(pred2.CastPosition);
 			}
 		}
 		
@@ -235,7 +236,7 @@ namespace GTC.Champions
 				}
 				if (stacks == 2)
 				{
-					if (R.IsReady() && (E.IsReady() || W.IsReady()))
+					if (R.IsReady() && (Q.IsReady() || E.IsReady()) && W.IsReady())
 					{
 						CastR();
 						return;
